@@ -4,17 +4,7 @@ using UnityEngine;
 
 public class SurprisedState : EmotionState
 {
-    public SurprisedState(GirlfriendAI girlFriendAI, EmotionStateMachine stateMachine, string[] inputs, string[] answers) : base(girlFriendAI, stateMachine, inputs, answers)
+    public SurprisedState(EmotionCommons emotionCommons, EmotionSpecs emotionSpecs) : base(emotionCommons, emotionSpecs)
     {
-        SplitText("SurprisedAnswers", ref answers);
-
-        SetUpDictionary(ref answers, ref inputs);
-    }
-
-
-    public override void DoEmotionMath(string input)
-    {
-        surprise += emotionKeyValue[input];
-        base.DoEmotionMath(input);
     }
 }

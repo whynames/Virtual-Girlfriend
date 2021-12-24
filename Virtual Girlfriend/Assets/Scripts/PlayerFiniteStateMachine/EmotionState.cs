@@ -7,24 +7,35 @@ using UnityEngine.UI;
 public class EmotionState
 {
 
-    public float laugh, fear, surprise, sadness, anger;
-    public float Max
-    {
-        get
-        {
-            return Mathf.Max(laugh, surprise, fear, sadness, anger);
-        }
-    }
+    public float feeling;
     public Dictionary<string, string[]> answerKeyValue = new Dictionary<string, string[]>();
     public Dictionary<string, float> emotionKeyValue = new Dictionary<string, float>();
 
 
+    protected EmotionCommons emotionCommons;
+    protected EmotionSpecs emotionSpecs;
     protected GirlfriendAI girlFriendAI;
     protected EmotionStateMachine stateMachine;
+
+    protected string[] randomAnswers;
 
     protected bool isExitingState;
     protected float startTime;
 
+    public EmotionState(EmotionCommons emotionCommons, EmotionSpecs emotionSpecs)
+    {
+        this.emotionCommons = emotionCommons;
+        this.emotionSpecs = emotionSpecs;
+        this.girlFriendAI = emotionCommons. girlFriendAI;
+        this.stateMachine = emotionCommons.stateMachine;
+        SplitText("AngryAnswers", ref emotionSpecs.answers);
+        SplitText("Inputs", ref emotionCommons.inputs);
+        SplitText("Random", ref emotionCommons.randomAnswers);
+        this.randomAnswers = emotionCommons.randomAnswers;
+        SetUpDictionary(ref emotionSpecs.answers, ref emotionCommons.inputs);        
+        SetUpEmotionDictionary(SetUpFloatsFromText("feelingvalues"), emotionCommons.inputs);
+
+    }
 
     public string[][] MakeArrayofArray(string[] array)
     {
@@ -39,7 +50,7 @@ public class EmotionState
     }
     public void SplitText(string TextfileName, ref string[] answers)
     {
-        answers = System.IO.File.ReadAllLines(@"Assets\Scripts\TextFiles\" + TextfileName + ".txt");
+        answers = System.IO.File.ReadAllLines(@"Assets/Scripts/TextFiles/" + TextfileName + ".txt");
     }
     public void SetUpDictionary(ref string[] answers, ref string[] inputs)
     {
@@ -51,7 +62,7 @@ public class EmotionState
     }
     public float[] SetUpFloatsFromText(string FileName)
     {
-        string[] mathstext = System.IO.File.ReadAllLines(@"Assets\Scripts\TextFiles\" + FileName + ".txt");
+        string[] mathstext = System.IO.File.ReadAllLines(@"Assets/Scripts/TextFiles/" + FileName + ".txt");
         float[] maths = new float[mathstext.Length];
         for (int i = 0; i < mathstext.Length; i++)
         {
@@ -71,12 +82,7 @@ public class EmotionState
     {
         return possibleAnswers[Random.Range(0, possibleAnswers.Length)];
     }
-    public EmotionState(GirlfriendAI girlFriendAI, EmotionStateMachine stateMachine, string[] inputs, string[] answers)
-    {
-        this.girlFriendAI = girlFriendAI;
-        this.stateMachine = stateMachine;
-        SetUpEmotionDictionary(SetUpFloatsFromText("feelingvalues"), inputs);
-    }
+
 
     public virtual void Enter()
     {
@@ -93,26 +99,6 @@ public class EmotionState
 
     public virtual void LogicUpdate()
     {
-        //if(Max == laugh)
-        //{
-        //    stateMachine.ChangeState(girlFriendAI.JoyfulState);
-        //}
-        //else if (Max == anger)
-        //{
-        //    stateMachine.ChangeState(girlFriendAI.AngryState);
-        //}
-        //else if (Max == fear)
-        //{
-        //    stateMachine.ChangeState(girlFriendAI.FearfulState);
-        //}
-        //else if (Max == sadness)
-        //{
-        //    stateMachine.ChangeState(girlFriendAI.SadState);
-        //}
-        //else
-        //{
-        //    stateMachine.ChangeState(girlFriendAI.SurprisedState);
-        //}
     }
 
     public virtual void PhysicsUpdate()
@@ -121,17 +107,49 @@ public class EmotionState
     }
     public string DoStringMath(string input)
     {
-        string[] answer = answerKeyValue[input];
+        string[] answer;
+        if(answerKeyValue.ContainsKey(input))
+        {
+            answer = answerKeyValue[input];
+        }
+        else
+        {
+            answer = randomAnswers;
+        }
         return RandomGetter(answer);
     }
 
     public virtual void DoEmotionMath(string input)
     {
-
+        if(emotionKeyValue.ContainsKey(input))
+        {
+            feeling += emotionKeyValue[input];
+        }
+        else
+        {
+            feeling --;
+        }
+        emotionSpecs.slider.value = (feeling/30) +0.5f;
+        girlFriendAI.ControlStateChange();
     }
 
     public virtual void DoChecks() { }
+}
 
-    
+[System.Serializable]
+public struct EmotionSpecs
+{
+    public string[] answers;
 
+    public Slider slider;
+}
+
+[System.Serializable]
+public struct EmotionCommons
+{
+    public string[] inputs;
+
+    public string[] randomAnswers;
+    public GirlfriendAI girlFriendAI; 
+    public EmotionStateMachine stateMachine;
 }

@@ -9,10 +9,11 @@ public class GirlfriendAI : MonoSingleton<GirlfriendAI>
     {
         get
         {
-            return Mathf.Max(JoyfulState.laugh, SurprisedState.surprise, FearfulState.fear, SadState.sadness, AngryState.anger);
+            return Mathf.Max(JoyfulState.feeling, SurprisedState.feeling, FearfulState.feeling, SadState.feeling, AngryState.feeling);
         }
     }
     public EmotionStateMachine StateMachine { get; private set; }
+
 
     public FearfulState FearfulState { get; private set; }
     public JoyFulState JoyfulState { get; private set; }
@@ -20,39 +21,29 @@ public class GirlfriendAI : MonoSingleton<GirlfriendAI>
     public SurprisedState SurprisedState { get; private set; }
     public AngryState AngryState { get; private set; }
 
-    public string[] inputs;
-    public string[] Joyanswers;
-    public string[] Sadanswers;
-    public string[] Surprisedanswers;
-    public string[] Angryanswers;
-    public string[] Fearanswers;
-
-
-
-    public List<string> highLaughAnswers = new List<string>()
-    {
-        "Of Course!", "lol", 
-    }
-    ;
-
-    public static string GetAnswerFromAI(string input)
-    {
-        string answer;
-
-        answer = string.Empty;
-        return answer;
-    }
+    private EmotionCommons emotionCommons;    
+    
+    [SerializeField]
+    private EmotionSpecs fearfulSpecs;
+    [SerializeField]
+    private EmotionSpecs angrySpecs;
+    [SerializeField]
+    private EmotionSpecs joyfulSpecs;
+    [SerializeField]
+    private EmotionSpecs sadSpecs;
+    [SerializeField]
+    private EmotionSpecs surprisedSpecs;                 
 
 
     private void Awake()
     {
-        SplitText("Inputs", ref inputs);
+        emotionCommons.girlFriendAI = this;
         StateMachine = new EmotionStateMachine();
-        FearfulState = new FearfulState(this,StateMachine, inputs, Fearanswers);
-        JoyfulState = new JoyFulState(this,StateMachine, inputs, Joyanswers);
-        SadState = new SadState(this,StateMachine,inputs, Sadanswers);
-        AngryState = new AngryState(this,StateMachine, inputs, Angryanswers);
-        SurprisedState = new SurprisedState(this,StateMachine, inputs, Surprisedanswers);
+        FearfulState = new FearfulState(emotionCommons, fearfulSpecs);
+        JoyfulState = new JoyFulState(emotionCommons, joyfulSpecs);
+        SadState = new SadState(emotionCommons, sadSpecs);
+        AngryState = new AngryState(emotionCommons, angrySpecs);
+        SurprisedState = new SurprisedState(emotionCommons, surprisedSpecs);
 
         StateMachine.Initialize(JoyfulState);
     }
@@ -76,32 +67,34 @@ public class GirlfriendAI : MonoSingleton<GirlfriendAI>
     private void Update()
     {
         StateMachine.CurrentState.LogicUpdate();
+    }
 
-        Debug.Log(StateMachine.CurrentState);
-        if (Max == JoyfulState.laugh)
+    public void ControlStateChange()
+    {
+        if (Max == JoyfulState.feeling)
         {
             StateMachine.ChangeState(JoyfulState);
         }
-        else if (Max == AngryState.anger)
+        else if (Max == AngryState.feeling)
         {
             StateMachine.ChangeState(AngryState);
         }
-        else if (Max == FearfulState.fear)
+        else if (Max == FearfulState.feeling)
         {
             StateMachine.ChangeState(FearfulState);
         }
-        else if (Max == SadState.sadness)
+        else if (Max == SadState.feeling)
         {
             StateMachine.ChangeState(SadState);
         }
         else
         {
-            StateMachine.ChangeState(SurprisedState);
+            StateMachine.ChangeState(SurprisedState);           
         }
     }
 
     public void SplitText(string TextfileName, ref string[] answers)
     {
-        answers = System.IO.File.ReadAllLines(@"Assets\Scripts\TextFiles\" + TextfileName + ".txt");
+        answers = System.IO.File.ReadAllLines(@"Assets/Scripts/TextFiles/" + TextfileName + ".txt");
     }
 }

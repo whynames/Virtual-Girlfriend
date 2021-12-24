@@ -4,18 +4,11 @@ using UnityEngine;
 
 public class JoyFulState : EmotionState
 {
-    public float joy;
-
-    public JoyFulState(GirlfriendAI girlFriendAI, EmotionStateMachine stateMachine, string[] inputs, string[] answers) : base(girlFriendAI, stateMachine, inputs, answers)
+    public JoyFulState(EmotionCommons emotionCommons, EmotionSpecs emotionSpecs) : base(emotionCommons, emotionSpecs)
     {
-        SplitText("JoyfulAnswers", ref answers);
-        SetUpDictionary(ref answers, ref inputs);
-
     }
 
-
-
-    // Start is called before the first frame update
+    // This code is no longer in use, but I wanted to keep it to show it is another way do it.
     //public override string DoStringMath(string input)
     //{
     //    switch (input)
@@ -44,14 +37,5 @@ public class JoyFulState : EmotionState
     //            return "I am soooo happpyyy";
     //    }
     //}
-    public override void DoEmotionMath(string input)
-    {
-        laugh += emotionKeyValue[input];
-        base.DoEmotionMath(input);
 
-    }
-    public override void LogicUpdate()
-    {
-        base.LogicUpdate();
-    }
 }
