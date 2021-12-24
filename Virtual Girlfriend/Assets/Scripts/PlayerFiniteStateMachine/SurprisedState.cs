@@ -4,26 +4,17 @@ using UnityEngine;
 
 public class SurprisedState : EmotionState
 {
-    public SurprisedState(GirlfriendAI girlFriendAI, EmotionStateMachine stateMachine) : base(girlFriendAI, stateMachine)
+    public SurprisedState(GirlfriendAI girlFriendAI, EmotionStateMachine stateMachine, string[] inputs, string[] answers) : base(girlFriendAI, stateMachine, inputs, answers)
     {
+        SplitText("SurprisedAnswers", ref answers);
+
+        SetUpDictionary(ref answers, ref inputs);
     }
 
-    public override string DoStringMath(string input)
-    {
-        switch(input)
-        {
-            case var s when input.Contains("!"):
-                girlFriendAI.anger += 20;
-                return "Tabii ki!";
-            case var s when input.Contains("?"):
-                return "maybe tomorrow";
-            default:
-                return "Sooo happyyy";
-        }
-    }
 
     public override void DoEmotionMath(string input)
     {
+        surprise += emotionKeyValue[input];
         base.DoEmotionMath(input);
     }
 }

@@ -89,8 +89,7 @@ public class ConversationManager : MonoSingleton<ConversationManager>
         nextYPosition += 34;
         isSecondLine = false;
 
-        SplitString(text);
-
+        GirlfriendAI.Instance.StateMachine.CurrentState.DoEmotionMath(text);
         if (isLastLine)
         {
             StartCoroutine(StartGirlAnswer(GirlfriendAI.Instance.StateMachine.CurrentState.DoStringMath(text)));
@@ -98,6 +97,7 @@ public class ConversationManager : MonoSingleton<ConversationManager>
     }
     public IEnumerator StartGirlAnswer(string text1)
     {
+
         GameObject go = ObjectPooler.Instance.SpawnFromPool("GirlText", new Vector3(girlTextPrefab.transform.localPosition.x, girlTextPrefab.transform.localPosition.y + nextYPosition, girlTextPrefab.transform.localPosition.z), Quaternion.identity, null);
         TMP_Text message = go.GetComponent<TMP_Text>();
         
@@ -206,29 +206,8 @@ public class ConversationManager : MonoSingleton<ConversationManager>
         isLastLine = false;
     }
 
-    public void SplitString(string text)
-    {
-        string[] array = text.Split(' ');
-        foreach (string token in array)
-        {
-            GirlfriendAI.Instance.JoyfulState.DoEmotionMath(text);
-        }
-    }
 
-    string SplitText()
-    {
-        onebigfile = System.IO.File.ReadAllLines(@"Assets\Scripts\TextFiles\JoyAnswers.txt");
 
-        string[] who = onebigfile[2].Split(',');
 
-        string random = who[Random.Range(0, who.Length)];
-        return random;
-        
-    }
 
-    private void Start()
-    {
-        OnPlayerAnswered += SplitText;
-        Debug.Log(OnPlayerAnswered());
-    }
 }
